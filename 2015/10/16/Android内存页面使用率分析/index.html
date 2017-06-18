@@ -1,0 +1,759 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Martin's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="起因Android基于java，本来内存由Dalvik虚拟机管理了，无需用户操心。但是系统GC经常会引起应用卡顿，这个是用户无法控制的。所以对于内存，程序还是要做些优化，以保证应用的流畅性。 在对内存进行优化的时候，经常会对内存进行监控比较，在这个过程中，有时候会发现内存的增加超过了预期，这是怎么回事呢？腾讯手机管家实战分析：内存突增是为神马？详细分析了这种情况。 但是这篇文章在介绍如何获取内存页">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android内存页面使用率分析">
+<meta property="og:url" content="http://martintang.github.io/2015/10/16/Android内存页面使用率分析/index.html">
+<meta property="og:site_name" content="Martin&#39;s Blog">
+<meta property="og:description" content="起因Android基于java，本来内存由Dalvik虚拟机管理了，无需用户操心。但是系统GC经常会引起应用卡顿，这个是用户无法控制的。所以对于内存，程序还是要做些优化，以保证应用的流畅性。 在对内存进行优化的时候，经常会对内存进行监控比较，在这个过程中，有时候会发现内存的增加超过了预期，这是怎么回事呢？腾讯手机管家实战分析：内存突增是为神马？详细分析了这种情况。 但是这篇文章在介绍如何获取内存页">
+<meta property="og:updated_time" content="2017-06-18T01:50:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android内存页面使用率分析">
+<meta name="twitter:description" content="起因Android基于java，本来内存由Dalvik虚拟机管理了，无需用户操心。但是系统GC经常会引起应用卡顿，这个是用户无法控制的。所以对于内存，程序还是要做些优化，以保证应用的流畅性。 在对内存进行优化的时候，经常会对内存进行监控比较，在这个过程中，有时候会发现内存的增加超过了预期，这是怎么回事呢？腾讯手机管家实战分析：内存突增是为神马？详细分析了这种情况。 但是这篇文章在介绍如何获取内存页">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://martintang.github.io/2015/10/16/Android内存页面使用率分析/"/>
+
+
+
+
+
+  <title>Android内存页面使用率分析 | Martin's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Martin's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">每天进步一点</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://martintang.github.io/2015/10/16/Android内存页面使用率分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Martin Tang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Martin's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android内存页面使用率分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-10-16T14:57:24+08:00">
+                2015-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">技术笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/10/16/Android内存页面使用率分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/16/Android内存页面使用率分析/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>起因</strong><br>Android基于java，本来内存由Dalvik虚拟机管理了，无需用户操心。但是系统GC经常会引起应用卡顿，这个是用户无法控制的。所以对于内存，程序还是要做些优化，以保证应用的流畅性。</p>
+<p>在对内存进行优化的时候，经常会对内存进行监控比较，在这个过程中，有时候会发现内存的增加超过了预期，这是怎么回事呢？<br><a href="http://bugly.qq.com/blog/?p=179" target="_blank" rel="external">腾讯手机管家实战分析：内存突增是为神马？</a>详细分析了这种情况。</p>
+<p>但是这篇文章在介绍如何获取内存页面数据时是比较简单的，下面我们就详细描述下如何获取内存页面数据及进行分析。<br><a id="more"></a></p>
+<p><strong>获取内存页面数据</strong></p>
+<ul>
+<li>关键函数：<strong>dvmHeapSourceWalk()</strong>，调用这个函数会遍历整个Java Heap。我们将回调函数传进去，就可以得到内存页面数据了。<strong>dvmHeapSourceWalk()</strong> 这个函数最后会被编译进libdvm.so中。</li>
+<li>如何在Native层调用dvmHeapSourceWalk()？<ol>
+<li><strong>dvmHeapSourceWalk()</strong> 并没有暴露出来，所以我们无法在代码中include头文件然后进行函数调用。</li>
+<li>通过 <strong>dlopen()</strong> 打开动态链接库libdvm.so。</li>
+<li>通过 <strong>dlsym()</strong> 找到libdvm.so中 <strong>dvmHeapSourceWalk</strong> 的symbol，也就是函数地址。<br>[注] dvmHeapSourceWalk在HeapSource.cpp中，编译成动态链接库后，symbol变化了。vi打开libdvm.so，查找到函数编译后的名称：<em>_Z17dvmHeapSourceWalkPFvPvS_jS<em>ES</em></em>。</li>
+<li>通过函数指针调用 <strong>dvmHeapSourceWalk()</strong>。</li>
+</ol>
+</li>
+<li>如果直接这么调用，程序会直接crash。因为涉及到内存操作时，必须进行内存锁操作。在Android源码中，是通过 <strong>dvmLockHeap</strong> 和 <strong>dvmUnlockHeap</strong> 来进行内存锁操作的。调用方法同上一步，<strong>dvmLockHeap</strong> 和 <strong>dvmUnlockHeap</strong> 编译后的名称为：<em>_Z11dvmLockHeapv</em> 和 <em>_Z13dvmUnlockHeapv</em>。</li>
+<li>得到结果后会发现，used_bytes比(end-start)大，这是因为used_bytes代表chunk_size，而(end-start)代表object_size，详见<a href="http://blog.chinaunix.net/uid-27767798-id-4109313.html" target="_blank" rel="external">malloc_chunk边界标记法和空间复用</a>。</li>
+</ul>
+<p>具体代码如下所示：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> log(...) \</span></div><div class="line">  &#123;FILE *fp = fopen(<span class="meta-string">"/data/local/tmp/heapwalk.log"</span>, <span class="meta-string">"a+"</span>); <span class="meta-keyword">if</span> (fp) &#123;\</div><div class="line">   fprintf(fp, __VA_ARGS__);\</div><div class="line">   fclose(fp);&#125;&#125;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> SYSTEM_PAGE_SIZE 4096</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ALIGN_UP(x, n) (((size_t)(x) + (n) - 1) &amp; ~((n) - 1))</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ALIGN_DOWN(x, n) ((size_t)(x) &amp; -(n))</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ALIGN_UP_TO_PAGE_SIZE(p) ALIGN_UP(p, SYSTEM_PAGE_SIZE)</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ALIGN_DOWN_TO_PAGE_SIZE(p) ALIGN_DOWN(p, SYSTEM_PAGE_SIZE)</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">void</span>* (*pDvmHeapSourceWalk)(<span class="keyword">void</span>(*callback)(<span class="keyword">void</span>* start, <span class="keyword">void</span>* end, <span class="keyword">size_t</span> used_bytes, <span class="keyword">void</span>* arg),<span class="keyword">void</span> *arg);</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">void</span>* (*pDvmLockHeap)(<span class="keyword">void</span>);</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">void</span>* (*pDvmUnlockHeap)(<span class="keyword">void</span>);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heap_chunk_callback</span><span class="params">(<span class="keyword">void</span>* start, <span class="keyword">void</span>* end, <span class="keyword">size_t</span> used_bytes, <span class="keyword">void</span>* arg)</span> </span>&#123;</div><div class="line">    <span class="built_in">log</span>(<span class="string">"0x%x,%d,%d,%d\n"</span>, ALIGN_DOWN_TO_PAGE_SIZE(start), start, end, used_bytes)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function">JNIEXPORT <span class="keyword">void</span> JNICALL <span class="title">Java_com_test_heapwalk_JniClient_InvokeHeapWalk</span> <span class="params">(JNIEnv *env, jclass arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">void</span>* dvm_hand = dlopen(<span class="string">"libdvm.so"</span>, RTLD_NOW);</div><div class="line">    pDvmHeapSourceWalk pdvmHeapSourceWalk = dlsym(dvm_hand, <span class="string">"_Z17dvmHeapSourceWalkPFvPvS_jS_ES_"</span>);</div><div class="line">    pDvmLockHeap pdvmLockHeap = dlsym(dvm_hand, <span class="string">"_Z11dvmLockHeapv"</span>);</div><div class="line">    pDvmUnlockHeap pdvmUnlockHeap = dlsym(dvm_hand, <span class="string">"_Z13dvmUnlockHeapv"</span>);</div><div class="line">    (*pdvmLockHeap)();</div><div class="line">    (*pdvmHeapSourceWalk)(heap_chunk_callback, <span class="number">0</span>);</div><div class="line">    (*pdvmUnlockHeap)();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>分析内存页面数据</strong></p>
+<ul>
+<li>使用python进行数据分析，因为python有matplotlib库，与matlab的命令十分相似，十分适合绘图。</li>
+<li>先将一个页面占用的总空间数算出来。</li>
+<li>将页面空间大小按占用空间数进行统计，计算出占用这些空间数的内存一共有多少页。</li>
+<li>调用matplotlib库进行柱状图绘制，得到与<a href="http://bugly.qq.com/blog/?p=179" target="_blank" rel="external">腾讯手机管家实战分析：内存突增是为神马？</a>中相似的分析结果。</li>
+</ul>
+<p>python代码如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> matplotlib.pylab <span class="keyword">as</span> plt</div><div class="line"></div><div class="line">data = []</div><div class="line">startAddr = <span class="string">""</span></div><div class="line">totalNum = <span class="number">0</span></div><div class="line"><span class="keyword">with</span> open(<span class="string">"heapwalk.log"</span>, <span class="string">"r"</span>) <span class="keyword">as</span> f:</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">        list = line.split(<span class="string">","</span>)</div><div class="line">        <span class="keyword">if</span>(list[<span class="number">0</span>] != startAddr):</div><div class="line">            <span class="keyword">if</span> (startAddr != <span class="string">""</span>):</div><div class="line">                data.append((startAddr, totalNum))</div><div class="line">            startAddr = list[<span class="number">0</span>]</div><div class="line">            totalNum = int(list[<span class="number">-1</span>])</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            totalNum += int(list[<span class="number">-1</span>])</div><div class="line"></div><div class="line">x = [<span class="number">0</span>, <span class="number">100</span>, <span class="number">200</span>, <span class="number">500</span>, <span class="number">1000</span>, <span class="number">2000</span>, <span class="number">3000</span>, <span class="number">4096</span>]</div><div class="line">y = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]</div><div class="line"></div><div class="line"><span class="keyword">for</span> value <span class="keyword">in</span> data:</div><div class="line">    <span class="keyword">if</span> (value[<span class="number">1</span>] &lt; x[<span class="number">1</span>]):</div><div class="line">        y[<span class="number">0</span>] += <span class="number">1</span></div><div class="line">    <span class="keyword">elif</span> (value[<span class="number">1</span>] &lt; x[<span class="number">2</span>]):</div><div class="line">        y[<span class="number">1</span>] += <span class="number">1</span></div><div class="line">    <span class="keyword">elif</span> (value[<span class="number">1</span>] &lt; x[<span class="number">3</span>]):</div><div class="line">        y[<span class="number">2</span>] += <span class="number">1</span></div><div class="line">    <span class="keyword">elif</span> (value[<span class="number">1</span>] &lt; x[<span class="number">4</span>]):</div><div class="line">        y[<span class="number">3</span>] += <span class="number">1</span></div><div class="line">    <span class="keyword">elif</span> (value[<span class="number">1</span>] &lt; x[<span class="number">5</span>]):</div><div class="line">        y[<span class="number">4</span>] += <span class="number">1</span></div><div class="line">    <span class="keyword">elif</span> (value[<span class="number">1</span>] &lt; x[<span class="number">6</span>]):</div><div class="line">        y[<span class="number">5</span>] += <span class="number">1</span></div><div class="line">    <span class="keyword">elif</span> (value[<span class="number">1</span>] &lt; x[<span class="number">7</span>]):</div><div class="line">        y[<span class="number">6</span>] += <span class="number">1</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        tmp = value[<span class="number">1</span>] / <span class="number">4096</span></div><div class="line">        y[<span class="number">7</span>] += tmp</div><div class="line"></div><div class="line">xVal = np.arange(len(x))</div><div class="line">plt.xticks(xVal+<span class="number">0.4</span>, x)</div><div class="line">plt.bar(xVal,y,width=<span class="number">0.8</span>,color=<span class="string">"g"</span>)</div><div class="line">plt.show()</div></pre></td></tr></table></figure></p>
+<p><strong>结果</strong><br>通过以上步骤，我们就获取内存页面数据并进行分析了。<br>在柱状图中，满页占绝大多数的情况是合理的，如果是小端高或者中间高的情况，需要做出改进。<br><a href="http://bugly.qq.com/blog/?p=179" target="_blank" rel="external">腾讯手机管家实战分析：内存突增是为神马？</a>中给出了建议，这里不再累述。</p>
+<hr>
+<p>参考：</p>
+<p>[1]. <a href="http://blog.csdn.net/roland_sun/article/details/34109569" target="_blank" rel="external">Android平台下hook框架adbi的研究</a></p>
+<p>[2]. <a href="http://blog.csdn.net/roland_sun/article/details/38640297" target="_blank" rel="external">Android平台下Dalvik层hook框架ddi的研究</a></p>
+<p>[3]. <a href="http://www.jianshu.com/p/ce003c4fe1cf" target="_blank" rel="external">Android NDK编译本地文件以及引用第三方so文件</a></p>
+<p>[4]. <a href="http://web.guohuiwang.com/technical-notes/androidndk1" target="_blank" rel="external">Mastering Android NDK Build System</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/18/《IT人的MacTalk》读书笔记/" rel="next" title="《IT人的MacTalk》读书笔记">
+                <i class="fa fa-chevron-left"></i> 《IT人的MacTalk》读书笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/11/08/《深入浅出面向对象分析与设计》读书笔记/" rel="prev" title="《深入浅出面向对象分析与设计》读书笔记">
+                《深入浅出面向对象分析与设计》读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/10/16/Android内存页面使用率分析/"
+           data-title="Android内存页面使用率分析" data-url="http://martintang.github.io/2015/10/16/Android内存页面使用率分析/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Martin Tang" />
+          <p class="site-author-name" itemprop="name">Martin Tang</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Martin Tang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"martintang"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

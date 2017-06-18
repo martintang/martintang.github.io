@@ -1,0 +1,778 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Martin's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="在Android之多媒体数据库小结中，我们说了获取多媒体资源可以很方便地通过多媒体数据库来操作。那么，如何保证多媒体数据库的数据完整性？Android有MediaScannerService来保证。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android之MediaScanner小结">
+<meta property="og:url" content="http://martintang.github.io/2015/11/19/Android之MediaScanner小结/index.html">
+<meta property="og:site_name" content="Martin&#39;s Blog">
+<meta property="og:description" content="在Android之多媒体数据库小结中，我们说了获取多媒体资源可以很方便地通过多媒体数据库来操作。那么，如何保证多媒体数据库的数据完整性？Android有MediaScannerService来保证。">
+<meta property="og:updated_time" content="2017-06-18T01:50:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android之MediaScanner小结">
+<meta name="twitter:description" content="在Android之多媒体数据库小结中，我们说了获取多媒体资源可以很方便地通过多媒体数据库来操作。那么，如何保证多媒体数据库的数据完整性？Android有MediaScannerService来保证。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://martintang.github.io/2015/11/19/Android之MediaScanner小结/"/>
+
+
+
+
+
+  <title>Android之MediaScanner小结 | Martin's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Martin's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">每天进步一点</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://martintang.github.io/2015/11/19/Android之MediaScanner小结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Martin Tang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Martin's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android之MediaScanner小结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-11-19T11:59:14+08:00">
+                2015-11-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">技术笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/11/19/Android之MediaScanner小结/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/19/Android之MediaScanner小结/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在<a href="/2015/11/18/Android之多媒体数据库小结/index.html">Android之多媒体数据库小结</a>中，我们说了获取多媒体资源可以很方便地通过多媒体数据库来操作。那么，如何保证多媒体数据库的数据完整性？Android有MediaScannerService来保证。<br><a id="more"></a></p>
+<p>如何沟通MediaScannerService呢？有两种途径，一种是sendBroadcast，然后MediaScannerReceiver接收广播并启动MediaScannerService，同时通过广播告诉服务状态；另一种是通过MediaScannerConnection启动MediaScannerService，并通过<em>onScanCompleted()</em>回调获知服务状态。下面就这两种途径分别说明一下。</p>
+<h2 id="sendBroadcast方式"><a href="#sendBroadcast方式" class="headerlink" title="sendBroadcast方式"></a>sendBroadcast方式</h2><p>让我们先看看MediaScannerReceiver的源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MediaScannerReceiver</span> <span class="keyword">extends</span> <span class="title">BroadcastReceiver</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String TAG = <span class="string">"MediaScannerReceiver"</span>;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> String action = intent.getAction();</div><div class="line">        <span class="keyword">final</span> Uri uri = intent.getData();</div><div class="line">        <span class="keyword">if</span> (Intent.ACTION_BOOT_COMPLETED.equals(action)) &#123;</div><div class="line">            <span class="comment">// Scan both internal and external storage</span></div><div class="line">            scan(context, MediaProvider.INTERNAL_VOLUME);</div><div class="line">            scan(context, MediaProvider.EXTERNAL_VOLUME);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">if</span> (uri.getScheme().equals(<span class="string">"file"</span>)) &#123;</div><div class="line">                <span class="comment">// handle intents related to external storage</span></div><div class="line">                String path = uri.getPath();</div><div class="line">                String externalStoragePath = Environment.getExternalStorageDirectory().getPath();</div><div class="line">                String legacyPath = Environment.getLegacyExternalStorageDirectory().getPath();</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    path = <span class="keyword">new</span> File(path).getCanonicalPath();</div><div class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                    Log.e(TAG, <span class="string">"couldn't canonicalize "</span> + path);</div><div class="line">                    <span class="keyword">return</span>;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">if</span> (path.startsWith(legacyPath)) &#123;</div><div class="line">                    path = externalStoragePath + path.substring(legacyPath.length());</div><div class="line">                &#125;</div><div class="line">                Log.d(TAG, <span class="string">"action: "</span> + action + <span class="string">" path: "</span> + path);</div><div class="line">                <span class="keyword">if</span> (Intent.ACTION_MEDIA_MOUNTED.equals(action)) &#123;</div><div class="line">                    <span class="comment">// scan whenever any volume is mounted</span></div><div class="line">                    scan(context, MediaProvider.EXTERNAL_VOLUME);</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action) &amp;&amp;</div><div class="line">                        path != <span class="keyword">null</span> &amp;&amp; path.startsWith(externalStoragePath + <span class="string">"/"</span>)) &#123;</div><div class="line">                    scanFile(context, path);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scan</span><span class="params">(Context context, String volume)</span> </span>&#123;</div><div class="line">        Bundle args = <span class="keyword">new</span> Bundle();</div><div class="line">        args.putString(<span class="string">"volume"</span>, volume);</div><div class="line">        context.startService(</div><div class="line">                <span class="keyword">new</span> Intent(context, MediaScannerService.class).putExtras(args));</div><div class="line">    &#125;    </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scanFile</span><span class="params">(Context context, String path)</span> </span>&#123;</div><div class="line">        Bundle args = <span class="keyword">new</span> Bundle();</div><div class="line">        args.putString(<span class="string">"filepath"</span>, path);</div><div class="line">        context.startService(</div><div class="line">                <span class="keyword">new</span> Intent(context, MediaScannerService.class).putExtras(args));</div><div class="line">    &#125;    </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>MediaScannerReceiver一共接收3个Intent：<strong>ACTION_BOOT_COMPLETED</strong>，<strong>ACTION_MEDIA_MOUNTED</strong>和<strong>ACTION_MEDIA_SCANNER_SCAN_FILE</strong>。<strong>ACTION_BOOT_COMPLETED</strong>用于系统刚刚启动完毕时，将扫描内存储和外存储，属于系统广播。<strong>ACTION_MEDIA_MOUNTED</strong>用于SD卡插上时，将扫描外存储，Android4.4以前用户代码中可以调用，不过Android4.4以后保护了起来，也属于系统广播了。现在<strong>用户能用的广播</strong>就剩下<strong>ACTION_MEDIA_SCANNER_SCAN_FILE</strong>了。</p>
+<p>需要注意的是，<strong>ACTION_MEDIA_SCANNER_SCAN_FILE</strong>仅仅能用于扫描单个文件！所以，如果需要扫描文件夹的话，只有外部循环一个一个地发送扫描文件广播了。如果发送的是文件夹的话，将不起任何作用。</p>
+<p>同时，MediaScannerService每扫描一个文件都会发送广播<strong>Intent.ACTION_MEDIA_SCANNER_STARTED</strong>和<strong>Intent.ACTION_MEDIA_SCANNER_FINISHED</strong>来通知自己的状态。我们可以实现一个BroadcastReceiver来接收这些广播并实现一些操作。</p>
+<h2 id="MediaScannerConnection方式"><a href="#MediaScannerConnection方式" class="headerlink" title="MediaScannerConnection方式"></a>MediaScannerConnection方式</h2><p>MediaScannerConnection提供了一个静态方法<em>scanFile(Context context, String[] paths, String[] mimeTypes, OnScanCompletedListener callback)</em>来简化操作，与发送广播方式一样，只能针对单个文件进行扫描，<strong>String[] paths</strong>就是存放单个文件路径的数组。每扫描完一个文件，都会调用一次<strong>OnScanCompletedListener.onScanCompleted(String path, Uri uri)</strong>。</p>
+<p>需要注意的是，<strong>OnScanCompletedListener.onScanCompleted(String path, Uri uri)</strong>是在非UI线程里调用的，所以如果要执行UI操作，还需要用<strong>Handler</strong>来进行操作。</p>
+<p>下面是一个扫描外部存储里音乐的代码片段，仅供参考。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> ArrayList&lt;String&gt; mToBeScanned;</div><div class="line"><span class="keyword">private</span> <span class="keyword">int</span> mMusicNum;</div><div class="line">...</div><div class="line"></div><div class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            </div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                mToBeScanned.clear();</div><div class="line">                scanMusic(Environment.getExternalStorageDirectory());</div><div class="line">                mMusicNum = mToBeScanned.size();</div><div class="line">                String[] toBeScanned = mToBeScanned.toArray(<span class="keyword">new</span> String[mMusicNum]);</div><div class="line">                MediaScannerConnection.scanFile(mContext, </div><div class="line">                    toBeScanned, </div><div class="line">                    <span class="keyword">null</span>, </div><div class="line">                    <span class="keyword">new</span> MediaScannerConnection.OnScanCompletedListener() &#123;</div><div class="line">                        </div><div class="line">                        <span class="meta">@Override</span></div><div class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScanCompleted</span><span class="params">(String path, Uri uri)</span> </span>&#123;</div><div class="line">                            </div><div class="line">                        &#125;</div><div class="line">                    &#125;);</div><div class="line">            &#125;</div><div class="line">        &#125;).start();</div><div class="line">...</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scanMusic</span><span class="params">(File f)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (f.isDirectory()) &#123;</div><div class="line">        File[] files = f.listFiles(<span class="keyword">new</span> FileFilter() &#123;</div><div class="line">            </div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">accept</span><span class="params">(File pathname)</span> </span>&#123;</div><div class="line">                <span class="keyword">if</span> (pathname.isDirectory()) &#123;</div><div class="line">                    <span class="comment">// 过滤隐藏文件夹</span></div><div class="line">                    <span class="keyword">if</span> (!pathname.getName().startsWith(<span class="string">"."</span>)) &#123;</div><div class="line">                        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">                    &#125;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    String name = pathname.getName();</div><div class="line">                    <span class="comment">// 仅仅找出后缀名为.mp3, .flac, .aac, .wma格式的音乐</span></div><div class="line">                    <span class="keyword">if</span> (name.endsWith(<span class="string">"mp3"</span>) || name.endsWith(<span class="string">".flac"</span>) || name.endsWith(<span class="string">".aac"</span>) || name.endsWith(<span class="string">".wma"</span>)) &#123;</div><div class="line">                        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        <span class="keyword">if</span> (files != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; files.length; i ++) &#123;</div><div class="line">                <span class="keyword">if</span> (files[i].isDirectory()) &#123;</div><div class="line">                    scanMusic(files[i]);</div><div class="line">                &#125;  <span class="keyword">else</span> &#123;</div><div class="line">                    mToBeScanned.add(files[i].getAbsolutePath());</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="为什么MediaScannerConnection不支持文件夹扫描"><a href="#为什么MediaScannerConnection不支持文件夹扫描" class="headerlink" title="为什么MediaScannerConnection不支持文件夹扫描"></a>为什么MediaScannerConnection不支持文件夹扫描</h3><p>通过MediaScannerService的源码，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> mBinder;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> IMediaScannerService.Stub mBinder = </div><div class="line">        <span class="keyword">new</span> IMediaScannerService.Stub() &#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestScanFile</span><span class="params">(String path, String mimeType, IMediaScannerListener listener)</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">false</span>) &#123;</div><div class="line">            Log.d(TAG, <span class="string">"IMediaScannerService.scanFile: "</span> + path + <span class="string">" mimeType: "</span> + mimeType);</div><div class="line">        &#125;</div><div class="line">        Bundle args = <span class="keyword">new</span> Bundle();</div><div class="line">        args.putString(<span class="string">"filepath"</span>, path);</div><div class="line">        args.putString(<span class="string">"mimetype"</span>, mimeType);</div><div class="line">        <span class="keyword">if</span> (listener != <span class="keyword">null</span>) &#123;</div><div class="line">            args.putIBinder(<span class="string">"listener"</span>, listener.asBinder());</div><div class="line">        &#125;</div><div class="line">        startService(<span class="keyword">new</span> Intent(MediaScannerService.<span class="keyword">this</span>,</div><div class="line">                MediaScannerService.class).putExtras(args));</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">scanFile</span><span class="params">(String path, String mimeType)</span> </span>&#123;</div><div class="line">        requestScanFile(path, mimeType, <span class="keyword">null</span>);</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>MediaScannerService也采用了AIDL接口来进行进程间通信，但是很明显，其它进程通过AIDL接口能够调用的方法也只能是扫描文件。我想，这也是MediaScannerConnection只能提供扫描文件的原因吧。</p>
+<h2 id="其它要注意的地方"><a href="#其它要注意的地方" class="headerlink" title="其它要注意的地方"></a>其它要注意的地方</h2><p>还有两条在我们平常编程中要注意的地方：</p>
+<ol>
+<li><p>最好，当我们的APP新增了多媒体文件，主动发起MediaScanner扫描。这样，主动更新数据库，大大方便了其它地方对多媒体文件的使用。</p>
+</li>
+<li><p>同理，当我们的APP删除了多媒体文件，也要主动更新数据库。这时，扫描不能清除数据库中的条目，必须用<strong>context.getContentResolver().delete(Uri url, String where, String[] selectionArgs)</strong>直接删除数据库中的条目。</p>
+</li>
+</ol>
+<hr>
+<p>参考：</p>
+<ol>
+<li><p><a href="http://droidyue.com/blog/2014/07/12/scan-media-files-in-android-chinese-edition/" target="_blank" rel="external">Android扫描多媒体文件剖析</a></p>
+</li>
+<li><p><a href="http://blog.csdn.net/matrix_laboratory/article/details/46741007" target="_blank" rel="external">Android MediaScannerService源码分析</a></p>
+</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/11/18/Android之多媒体数据库小结/" rel="next" title="Android之多媒体数据库小结">
+                <i class="fa fa-chevron-left"></i> Android之多媒体数据库小结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/23/Mac下如何全方位访问外网/" rel="prev" title="Mac下如何全方位访问外网">
+                Mac下如何全方位访问外网 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/11/19/Android之MediaScanner小结/"
+           data-title="Android之MediaScanner小结" data-url="http://martintang.github.io/2015/11/19/Android之MediaScanner小结/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Martin Tang" />
+          <p class="site-author-name" itemprop="name">Martin Tang</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#sendBroadcast方式"><span class="nav-number">1.</span> <span class="nav-text">sendBroadcast方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MediaScannerConnection方式"><span class="nav-number">2.</span> <span class="nav-text">MediaScannerConnection方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么MediaScannerConnection不支持文件夹扫描"><span class="nav-number">2.1.</span> <span class="nav-text">为什么MediaScannerConnection不支持文件夹扫描</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它要注意的地方"><span class="nav-number">3.</span> <span class="nav-text">其它要注意的地方</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Martin Tang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"martintang"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="笔记," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Martin's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="重构，对程序员而言，可以说是要经常与之打交道的。无论是当你面对一个别人的遗留系统，还是你自己曾经写的代码，或者你自己正在写的代码，重构都是保持代码“干净”的不二法门。《重构－改善既有代码的设计》这本书正是告诉你如何进行重构的经典书籍。">
+<meta name="keywords" content="笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《重构－改善既有代码的设计》读书笔记">
+<meta property="og:url" content="http://martintang.github.io/2016/01/30/《重构－改善既有代码的设计》读书笔记/index.html">
+<meta property="og:site_name" content="Martin&#39;s Blog">
+<meta property="og:description" content="重构，对程序员而言，可以说是要经常与之打交道的。无论是当你面对一个别人的遗留系统，还是你自己曾经写的代码，或者你自己正在写的代码，重构都是保持代码“干净”的不二法门。《重构－改善既有代码的设计》这本书正是告诉你如何进行重构的经典书籍。">
+<meta property="og:updated_time" content="2017-06-18T01:50:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《重构－改善既有代码的设计》读书笔记">
+<meta name="twitter:description" content="重构，对程序员而言，可以说是要经常与之打交道的。无论是当你面对一个别人的遗留系统，还是你自己曾经写的代码，或者你自己正在写的代码，重构都是保持代码“干净”的不二法门。《重构－改善既有代码的设计》这本书正是告诉你如何进行重构的经典书籍。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://martintang.github.io/2016/01/30/《重构－改善既有代码的设计》读书笔记/"/>
+
+
+
+
+
+  <title>《重构－改善既有代码的设计》读书笔记 | Martin's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Martin's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">每天进步一点</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://martintang.github.io/2016/01/30/《重构－改善既有代码的设计》读书笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Martin Tang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Martin's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《重构－改善既有代码的设计》读书笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-01-30T11:02:23+08:00">
+                2016-01-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/读书笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">读书笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/01/30/《重构－改善既有代码的设计》读书笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/30/《重构－改善既有代码的设计》读书笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>重构，对程序员而言，可以说是要经常与之打交道的。无论是当你面对一个别人的遗留系统，还是你自己曾经写的代码，或者你自己正在写的代码，重构都是保持代码“干净”的不二法门。《重构－改善既有代码的设计》这本书正是告诉你如何进行重构的经典书籍。<br><a id="more"></a></p>
+<p><strong>重构</strong>，单纯地看到这个词，很多人可能都以为是指推翻一个系统然后重新构造一个新系统。当然，这肯定是误解！<strong>重构</strong>，其英文为<em>refactor</em>，其定义为<strong>在不改变软件可观察行为的前提下改善其内部结构</strong>。</p>
+<p>在实际中，经常看到这样的情景：当你接手别人写的代码时，觉得这烂代码真是很难理解，很难维护，真想自己重新来写一份，肯定想着自己重新写一份比维护现在的代码还要省功夫。但是，这是不可能的！首先，这代码的可维护性差，可扩展性差，可读性差，但是，这代码经过了时间的检验，从功能的角度来说，它是合格的；而且，重新写一份的话，市场压力也很大，同时，你并不能保证所有的外在功能都与以前的代码一样，尤其是在缺乏充分测试的情况下。</p>
+<p>这种情况下，<strong>重构</strong>要发挥其重要价值了。<strong>重构</strong>可以让你在安全的范围内对代码进行内部结构调整。其实，在代码的生命周期中，重构是一直是需要的。而且，重构可以帮助你更好更快地理解代码。</p>
+<p>本书从一个案例开始作为第一章，向我们展示了重构的威力及魅力。随着作者一步步地动作，将一份烂代码安全地调整为一份好代码。一步步很小的改动，一步步你我都会的改动，就能让代码起死回生，不能不感慨<strong>重构</strong>的魅力。</p>
+<p>第二章主要讲述<strong>重构</strong>理论方面的知识。我觉得最主要的一点把握住即可：重构是使代码变好的手段而不是目的，不能放在最主要的位置，但却要像润物细无声一样贯穿于整个开发过程。当我们有空余的时间，我们来重构；当我们发现代码有变坏的味道，我们来重构；当我们有更重要的事情时，我们就重构到这个地方，以后有空了或者以后有需要了，我们再来重构。重构对于代码就像锻炼身体对于人一样，一直伴随着，使其永远保持健康。</p>
+<p>第三章介绍了常见的代码坏味道，包括重复代码，过长的函数，过大的类，过长的参数列表等等。基本上不利于理解，不利于扩展，重复，耦合太强就是坏味道。我们平时要保持对这些坏味道的敏感。</p>
+<p>第四章则介绍了测试体系。要安全地重构，测试是必要的也是必须的。其实，重构的过程有点像测试驱动开发的过程，都是用测试来保证可靠性。</p>
+<p>从第五章到第十二章，作者详细地介绍了各种重构手法（步骤），来安全地进行重构，是作者经验的总结。这几章可以作为参考书随时翻阅，不过我想随着我们平时用地越来越多，我们也会将其中的手法越来越多地融入自己的血液。阅读完后，我自己的总体感觉是：</p>
+<ol>
+<li><p>小步小步地进行。每一步完成后都保证其安全性和可靠性。</p>
+</li>
+<li><p>由复杂到简单。如果函数很长很复杂，就将函数分解开来，让其短小简单，这样才能更好地进行下面的步骤。推此至其它。</p>
+</li>
+<li><p>有些手法是另一些手法的逆操作，也就是说，好代码没有一个绝对的标准，在某些情况下，需要这样操作才是好代码，而情况发生变化后，很有可能需要逆操作才是好代码。所以要看当时的情景，不过无论情景怎么变化，我们都可以通过重构来保持好代码。</p>
+</li>
+<li><p>不可能在一开始设计时就把以后所有的情况都考虑周全。所以我们在开始时不要太过纠结，选择一个在当时看起来最好的方案就开始吧，以后有变化时，不要怕，我们可以重构。</p>
+</li>
+<li><p>重构是手段，核心是我们对代码的理解，是我们对面向对象思想的掌握，切不可本末倒置。</p>
+</li>
+</ol>
+<p>最后三章则介绍了一些重构的现实情况，重构工具，以及作者的总结。</p>
+<p>读完本书，剩下的就是实践了，不要怕，这本书会给予我们很好的参考。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/笔记/" rel="tag"># 笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/23/Mac下使用Android-Studio阅读Android源码/" rel="next" title="Mac下使用Android Studio阅读Android源码">
+                <i class="fa fa-chevron-left"></i> Mac下使用Android Studio阅读Android源码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/16/《心学凶猛》读书笔记/" rel="prev" title="《心学凶猛》读书笔记">
+                《心学凶猛》读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/01/30/《重构－改善既有代码的设计》读书笔记/"
+           data-title="《重构－改善既有代码的设计》读书笔记" data-url="http://martintang.github.io/2016/01/30/《重构－改善既有代码的设计》读书笔记/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Martin Tang" />
+          <p class="site-author-name" itemprop="name">Martin Tang</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Martin Tang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"martintang"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

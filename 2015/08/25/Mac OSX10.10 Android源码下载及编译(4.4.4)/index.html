@@ -1,0 +1,809 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Mac," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Martin's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="因为工作原因，需要下载Android源码进行研究，本以为用Mac下载源码编译是个很容易的事情，实际上，碰到了很多问题，特记录之。">
+<meta name="keywords" content="Android,Mac">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac OSX10.10 Android源码下载及编译(4.4.4)">
+<meta property="og:url" content="http://martintang.github.io/2015/08/25/Mac OSX10.10 Android源码下载及编译(4.4.4)/index.html">
+<meta property="og:site_name" content="Martin&#39;s Blog">
+<meta property="og:description" content="因为工作原因，需要下载Android源码进行研究，本以为用Mac下载源码编译是个很容易的事情，实际上，碰到了很多问题，特记录之。">
+<meta property="og:updated_time" content="2017-06-18T01:50:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mac OSX10.10 Android源码下载及编译(4.4.4)">
+<meta name="twitter:description" content="因为工作原因，需要下载Android源码进行研究，本以为用Mac下载源码编译是个很容易的事情，实际上，碰到了很多问题，特记录之。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://martintang.github.io/2015/08/25/Mac OSX10.10 Android源码下载及编译(4.4.4)/"/>
+
+
+
+
+
+  <title>Mac OSX10.10 Android源码下载及编译(4.4.4) | Martin's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Martin's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">每天进步一点</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://martintang.github.io/2015/08/25/Mac OSX10.10 Android源码下载及编译(4.4.4)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Martin Tang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Martin's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mac OSX10.10 Android源码下载及编译(4.4.4)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-08-25T17:08:07+08:00">
+                2015-08-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术笔记/" itemprop="url" rel="index">
+                    <span itemprop="name">技术笔记</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/08/25/Mac OSX10.10 Android源码下载及编译(4.4.4)/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/08/25/Mac OSX10.10 Android源码下载及编译(4.4.4)/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>因为工作原因，需要下载Android源码进行研究，本以为用Mac下载源码编译是个很容易的事情，实际上，碰到了很多问题，特记录之。<br><a id="more"></a></p>
+<h3 id="Android源码下载"><a href="#Android源码下载" class="headerlink" title="Android源码下载"></a>Android源码下载</h3><p>主要参考<a href="https://source.android.com/source/initializing.html" target="_blank" rel="external">Android官网</a>，然后一些自己碰到问题的解决：</p>
+<ol>
+<li>准备一个能连接国外的代理，推荐<a href="https://www.astrill.com" target="_blank" rel="external"><strong>Astrill</strong></a>和<a href="https://getlantern.org" target="_blank" rel="external"><strong>Lantern</strong></a>，速度都很快也很稳定。<br> 这2个代理都是针对web的，要在shell中下载源码，还得设置环境变量：<br> <code>export https_proxy=127.0.0.1:xxxx</code><br> [注]：如果代理被封或者速度太慢，考虑<a href="http://www.cnblogs.com/act262/p/4179093.html" target="_blank" rel="external"><strong>同步、更新、下载Android Source &amp; SDK from 国内镜像站</strong></a></li>
+<li>因为Android源码编译是要区分大小写的，而Mac本身的文件系统不区分大小写，所以得在Mac上建一个&quot;区分大小写，日志式&quot;的磁盘。<br> 下载4.4.4源码要42G，编译后out文件夹大小22G，所以总共需要64G空间，先分配70G空间的磁盘：<br> <code>hdiutil create -type SPARSE -fs &#39;Case-sensitive Journaled HFS+&#39; -size 70g ~/android.dmg</code><br> 或<br> <code>用磁盘工具Disk Utility来做一个70G大小的磁盘</code><br> 未来如果磁盘空间不足，可以增大磁盘空间：<br> <code>hdiutil resize -size &lt;new-size-you-want&gt;g ~/android.dmg</code><br> 然后，挂载磁盘：<br> <code>hdiutil attach ~/android.dmg -mountpoint /Volumes/android</code><br> 创建下载目录：<br> <code>mkdir /Volumes/android/android-source</code></li>
+<li>下载工具repo<br> <code>curl https://storage.googleapis.com/git-repo-downloads/repo &gt; /usr/local/bin/repo</code><br> <code>chmod a+x /usr/local/bin/repo</code></li>
+<li>修改文件描述符限制，在~/.zshrc中添加以下内容：<br> <code>ulimit -S -n 1024</code></li>
+<li>初始化repo client：<br> <code>cd /Volumes/android/android-source</code><br> <code>repo init -u https://android.googlesource.com/platform/manifest -b android-4.4.4_r2.0.1</code><br> [注]：<code>-b</code>指定了branch，要想换个branch，详见<a href="https://source.android.com/source/build-numbers.html" target="_blank" rel="external">Codenames, Tags, and Build Numbers</a></li>
+<li>在下载过程中，有时候经常会卡住，虽然可以重新<code>repo  sync</code>，但是会发现源码占用空间不断增大，曾经源码占用空间增长到50G，后来发现问题所在<sup><a href="#ref1">[1]</a></sup>，所以做一些额外的准备工作，都是经验教训：<ul>
+<li>将Mac的节能器设置为防止电脑自动进入睡眠，防止硬盘进入睡眠。</li>
+<li>tcp window scaling disable<sup><a href="#ref2">[2]</a></sup><br>  <code>sudo sysctl -w net.inet.tcp.rfc1323=0</code></li>
+<li>准备自动重试下载脚本<strong>download.sh</strong><sup><a href="#ref3">[3]</a></sup>，在重试下载的时候要把临时文件清理掉，防止占用空间不断增大。<br><code>find . -name &quot;tmp_pack*&quot; | xargs rm</code></li>
+</ul>
+</li>
+<li>运行<strong>download.sh</strong>开始下载Android源码，不用坐在电脑前等卡住了再按<code>repo sync</code>了。</li>
+</ol>
+<h3 id="Android源码编译"><a href="#Android源码编译" class="headerlink" title="Android源码编译"></a>Android源码编译</h3><p>源码编译过程会碰到一些问题：</p>
+<ol>
+<li>下载JDK6，编译4.4及以前的代码需要java1.6版本，4.4以后的可以用java1.7版本。</li>
+<li>修改系统框架源码，直接注释<strong>QTMovieModernizer.h</strong>:156, 163两行的<strong>atomic</strong>关键字,需要修改头文件如下:<pre>
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/QTKit.framework/Headers/QTMovieModernizer.h
+</pre></li>
+<li><p>修改一些android源码，使其能够在10.10系统下编译<sup><a href="#ref4">[4]</a></sup><sup><a href="#ref5">[5]</a></sup>：</p>
+<ul>
+<li><p><code>build/core/combo/HOST_darwin-x86.mk</code></p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"> ...</div><div class="line">-mac_sdk_versions_supported :=  10.6 10.7 10.8</div><div class="line">+mac_sdk_versions_supported :=  10.9 10.10</div><div class="line"> ...</div><div class="line">-ifeq (<span class="variable">$(mac_sdk_version)</span>,10.8)</div><div class="line">+<span class="keyword">ifeq</span> (<span class="variable">$(mac_sdk_version)</span>,10.9)</div><div class="line"> ...</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>external/chromium_org/base/android/jni_generator/jni_generator.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">import</span> sys</div><div class="line"> <span class="keyword">import</span> textwrap</div><div class="line"> <span class="keyword">import</span> zipfile</div><div class="line">+<span class="keyword">import</span> platform</div><div class="line">...</div><div class="line">-    p = subprocess.Popen(args=[<span class="string">'cpp'</span>, <span class="string">'-fpreprocessed'</span>],</div><div class="line">+    <span class="comment">#p = subprocess.Popen(args=['cpp', '-fpreprocessed'],</span></div><div class="line">+    system = platform.system()</div><div class="line">+    <span class="keyword">if</span> system == <span class="string">'Darwin'</span>:</div><div class="line">+      cpp_args = [<span class="string">'cpp'</span>]</div><div class="line">+    <span class="keyword">else</span>:</div><div class="line">+      cpp_args = [<span class="string">'cpp'</span>, <span class="string">'-fpreprocessed'</span>]</div><div class="line">+    p = subprocess.Popen(args=cpp_args,</div><div class="line">                          stdin=subprocess.PIPE,</div><div class="line">                          stdout=subprocess.PIPE,</div><div class="line">                          stderr=subprocess.PIPE)</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>external/qemu/distrib/sdl-1.2.15/src/video/quartz/SDL_QuartzVideo.h</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"> ...</div><div class="line"> <span class="keyword">const</span> <span class="keyword">void</span>         *save_mode;         <span class="comment">/* original mode of the display */</span></div><div class="line">+<span class="meta">#<span class="meta-keyword">if</span> (MAC_OS_X_VERSION_MIN_REQUIRED &lt; 1070)</span></div><div class="line"> CGDirectPaletteRef palette;            <span class="comment">/* palette of an 8-bit display */</span></div><div class="line">+<span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line"> NSOpenGLContext    *gl_context;        <span class="comment">/* OpenGL rendering context */</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>移除NDK_ROOT环境变量<br> <code>unset NDK_ROOT</code></p>
+</li>
+<li>编译<br> <code>make -j4</code></li>
+</ol>
+<h3 id="Android源码版本切换"><a href="#Android源码版本切换" class="headerlink" title="Android源码版本切换"></a>Android源码版本切换</h3><p>当我们需要切换到别的版本编译时，需要做如下操作：</p>
+<ol>
+<li>初始化repo客户端到某一版本(以android-4.0.3_r1为例)<br> <code>repo init -b android-4.0.3_r1</code></li>
+<li>同步代码<br> <code>repo sync</code></li>
+<li>查询现在在哪个版本<br> <code>repo info</code>后看<strong>Current revision</strong></li>
+<li>如果需要构造本地分支，用如下命令<br> <code>repo start my-local-branch --all</code></li>
+</ol>
+<p>[注]：要在别的版本下编译，应该会碰到一些别的问题，需要上网查找解决方案<sup><a href="#ref6">[6]</a></sup>。</p>
+<hr>
+<p>参考：</p>
+<p>[1]. <a id="ref1"><a href="http://blog.csdn.net/alien75/article/details/38921397" target="_blank" rel="external">深究repo的所谓“续传”功能</a></a></p>
+<p>[2]. <a id="ref2"><a href="https://en.wikipedia.org/wiki/TCP_window_scale_option" target="_blank" rel="external">TCP window scale option</a></a></p>
+<p>[3]. <a id="ref3"><a href="http://blog.csdn.net/xia0pang/article/details/20281071" target="_blank" rel="external">优雅的repo sync自动重试</a></a></p>
+<p>[4]. <a id="ref4"><a href="http://m.blog.csdn.net/blog/skcks/43088235" target="_blank" rel="external">osx 10.10.1编译 Android 4.4.4_r2</a></a></p>
+<p>[5]. <a id="ref5"><a href="http://www.liball.me/mac-10-10-build-android-4-4-4-for-nexus/" target="_blank" rel="external">Mac 10.10 编译android 4.4.4 for nexus</a></a></p>
+<p>[6]. <a id="ref6"><a href="https://medium.com/@raminmahmoodi/build-android-5-0-lollipop-on-osx-10-10-yosemite-441bd00ee77a#.m5q61rfg7" target="_blank" rel="external">Build Android 5.0 Lollipop on OSX 10.10 Yosemite</a></a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Mac/" rel="tag"># Mac</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/16/如何在Activity中动态获取View尺寸/" rel="next" title="如何在Activity中动态获取View尺寸">
+                <i class="fa fa-chevron-left"></i> 如何在Activity中动态获取View尺寸
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/18/《IT人的MacTalk》读书笔记/" rel="prev" title="《IT人的MacTalk》读书笔记">
+                《IT人的MacTalk》读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/08/25/Mac OSX10.10 Android源码下载及编译(4.4.4)/"
+           data-title="Mac OSX10.10 Android源码下载及编译(4.4.4)" data-url="http://martintang.github.io/2015/08/25/Mac OSX10.10 Android源码下载及编译(4.4.4)/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Martin Tang" />
+          <p class="site-author-name" itemprop="name">Martin Tang</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Android源码下载"><span class="nav-number">1.</span> <span class="nav-text">Android源码下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Android源码编译"><span class="nav-number">2.</span> <span class="nav-text">Android源码编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Android源码版本切换"><span class="nav-number">3.</span> <span class="nav-text">Android源码版本切换</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Martin Tang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"martintang"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
